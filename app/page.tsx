@@ -6,13 +6,13 @@ import { Purchases } from '../components/ui/purchases-card';
 import { Sales } from '../components/ui/sales-card';
 import { Movements, type Movement } from '../components/ui/movements';
 import { PendingBalance } from '@/components/ui/pending-balance-card';
+import { CheckoutTest } from '@/components/ui/checkout-test';
 const sql = neon(process.env.DATABASE_URL!);
 
 export default async function HomePage() {
-  const { isAuthenticated } = await auth()
-  const user = await currentUser();
+  const {userId} = await auth();
 
-  if (!user) {
+  if (!userId) {
     redirect('/sign-in');
   }
 
@@ -40,6 +40,9 @@ export default async function HomePage() {
       </div>
       <div className="w-full max-w-5xl">
         <Movements movimientos={movimientos} />
+      </div>
+      <div className="w-full max-w-5xl">
+        <CheckoutTest />
       </div>
     </main>
   );
