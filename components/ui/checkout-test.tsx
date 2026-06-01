@@ -1,13 +1,11 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-type CheckoutResponse = {
-  [key: string]: unknown
-}
-
 export function CheckoutTest() {
-  const [response, setResponse] = useState<CheckoutResponse | null>(null)
+  const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -16,7 +14,7 @@ export function CheckoutTest() {
     setError(null)
 
     try {
-      const res = await fetch('/api/payments/checkout', {
+      const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,14 +35,18 @@ export function CheckoutTest() {
 
       const data = await res.json()
 
-      setResponse(data)
-
-      if (data && typeof data.url === 'string') {
-        window.location.href = data.url
+      if (!res.ok) {
+        throw new Error(data?.error || 'Error en la API')
       }
+
+      if (!data.preferenceId) {
+        throw new Error('No se recibió preferenceId')
+      }
+
+      router.push(`/checkout?preferenceId=${data.preferenceId}`)
     } catch (err) {
       console.error(err)
-      setError('Error en la petición')
+      setError((err as Error).message || 'Error en la petición')
     } finally {
       setLoading(false)
     }
@@ -69,12 +71,6 @@ export function CheckoutTest() {
         <p className="mt-4 text-sm text-red-600">
           {error}
         </p>
-      )}
-
-      {response && (
-        <pre className="mt-4 overflow-x-auto rounded border bg-slate-950 p-4 text-sm text-white">
-          {JSON.stringify(response, null, 2)}
-        </pre>
       )}
     </section>
   )

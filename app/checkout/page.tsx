@@ -1,41 +1,35 @@
+import { MercadoPagoBrick } from '@/components/ui/mercadopago-brick'
+
 type CheckoutPageProps = {
-  searchParams: {
-    data?: string
-  }
+  searchParams: Promise<{
+    preferenceId?: string
+  }>
 }
 
-export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
-  let parsedData: unknown = null
-  let parseError: string | null = null
+export default async function CheckoutPage({
+  searchParams,
+}: CheckoutPageProps) {
+  const { preferenceId } = await searchParams
 
-  if (searchParams.data) {
-    try {
-      parsedData = JSON.parse(decodeURIComponent(searchParams.data))
-    } catch (error) {
-      parseError = 'No se pudo leer el carrito enviado.'
-    }
+  if (!preferenceId) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p>No se recibió una preferencia.</p>
+      </main>
+    )
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#ebebeb] p-6">
-      <div className="w-full max-w-3xl rounded-3xl bg-white p-10 shadow-lg">
-        <h1 className="text-3xl font-bold">Hola mundo</h1>
-        <p className="mt-4 text-base text-slate-600">Esta es la página de pago de prueba.</p>
+    <main className="min-h-screen bg-[#ebebeb] p-6">
+      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 shadow-lg">
+        <h1 className="mb-6 text-3xl font-bold">
+          Finalizar compra
+        </h1>
 
-        {searchParams.data ? (
-          <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-6">
-            <h2 className="text-xl font-semibold">Datos recibidos</h2>
-            {parseError ? (
-              <p className="mt-3 text-sm text-red-600">{parseError}</p>
-            ) : (
-              <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded bg-slate-950 p-4 text-sm text-white">
-                {JSON.stringify(parsedData, null, 2)}
-              </pre>
-            )}
-          </div>
-        ) : (
-          <p className="mt-8 text-sm text-slate-500">No se recibieron datos.</p>
-        )}
+        <MercadoPagoBrick
+          preferenceId={preferenceId}
+          amount={400}
+        />
       </div>
     </main>
   )
